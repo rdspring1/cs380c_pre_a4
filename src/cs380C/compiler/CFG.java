@@ -176,7 +176,7 @@ public class CFG implements BaseCFG
 		if(nextSet.size() > 0)
 			return nextSet.last();
 		else
-			return cmdlist.size();
+			return -1;
 	}
 	public int getCurrentFunction(int numline)
 	{

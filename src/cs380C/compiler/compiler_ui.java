@@ -28,37 +28,32 @@ public class compiler_ui {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		try {			
-			// Parse CommandLine Arguments
-			final Scanner r = new Scanner(new File(args[0]));
-			//final Scanner r = new Scanner(System.in);
-			final Writer w = new PrintWriter(System.out);
-			
-			cmdlist = read(r);
-			
-			for (String s: args) {
-	            if(s.startsWith("-backend="))
-	            {
-	            	outputType = backend.valueOf(s.split("=")[1].toUpperCase());
-	            }
-	            else if(s.startsWith("-opt="))
-	            {
-	            	String[] opts = s.split("=")[1].split(",");
-	            	for(String o : opts)
-	            	{
-	            		optimizations.add(opt.valueOf(o.toUpperCase()));
-	            	}
-	            }
-	        }
-			
-			for(opt o : optimizations)
-				performOptimization(o);
-			
-			generateOutput(w, outputType);
-			
-		} catch (Exception e) {
-			System.err.println("Error: " + e.getMessage());
-		}
+		// Parse CommandLine Arguments
+		final Scanner r = new Scanner(new File(args[0]));
+		//final Scanner r = new Scanner(System.in);
+		final Writer w = new PrintWriter(System.out);
+		
+		cmdlist = read(r);
+		
+		for (String s: args) {
+            if(s.startsWith("-backend="))
+            {
+            	outputType = backend.valueOf(s.split("=")[1].toUpperCase());
+            }
+            else if(s.startsWith("-opt="))
+            {
+            	String[] opts = s.split("=")[1].split(",");
+            	for(String o : opts)
+            	{
+            		optimizations.add(opt.valueOf(o.toUpperCase()));
+            	}
+            }
+        }
+		
+		for(opt o : optimizations)
+			performOptimization(o);
+		
+		generateOutput(w, outputType);
 	}
 
 	private static void generateOutput(Writer w, backend outputType) throws Exception {

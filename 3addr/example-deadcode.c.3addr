@@ -1,0 +1,24 @@
+    instr 1: nop
+    instr 2: entrypc
+    instr 3: enter 56
+    instr 4: move 3 a#-8
+    instr 5: move 5 b#-16
+    instr 6: move 4 d#-32
+    instr 7: move 100 x#-40
+    instr 8: cmple a#-8 b#-16
+    instr 9: blbs (8) [13]
+    instr 10: add a#-8 b#-16
+    instr 11: move (10) c#-24
+    instr 12: move 2 d#-32
+    instr 13: move 10 y#-48
+    instr 14: move 15 y#-48
+    instr 15: move 20 y#-48
+    instr 16: add y#-48 4
+    instr 17: move (16) c#-24
+    instr 18: mul b#-16 d#-32
+    instr 19: add (18) c#-24
+    instr 20: move (19) output#-56
+    instr 21: write output#-56
+    instr 22: wrl
+    instr 23: ret 0
+    instr 24: nop
