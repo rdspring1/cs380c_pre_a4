@@ -1,0 +1,70 @@
+
+                Homework 4: Partial Redundancy Elimination
+
+Course:     CS 380C: Advanced Compiler Techniques (Spring 2013)
+Instructor: Keshav Pingali
+Assigned:   Monday, March 4, 2013
+Due:        Friday, March 8, 2013, 11:59 PM 
+
+You can do this assignment in groups of two.
+
+1. Objective
+------------
+The goal of this assignment is to perform Perform Partial Redundancy
+Elimination (PRE).
+
+
+2 Partial Redundancy Elimination (PRE)
+--------------------------------------
+At this point, you have performed two data-flow analyses, liveness and
+dead code elimination. For this assignment, we will perform PRE. PRE will be invoked
+similar to the optimizations performed in homework 3 (using command line
+flag -opt=pre).
+
+3. Output
+---------
+As usual, your compiler should accept 3-address code as input from stdin,
+and write output to stdout.  Your compiler invoked by the script 'run.sh'
+should accept the following command line arguments.
+  1. -opt, a comma separated list of optimizations. The optimizations to
+     support are dce and pre.
+  2. -backend, the backend to be used to write output to. The optimizations
+     to support are c, cfg and 3addr.
+
+4. Turning in your assignment
+-----------------------------
+Download this tarball
+   http://www.cs.utexas.edu/~pingali/CS380C/2013/assignments/assignment4.tar.gz
+This is organized similar to homeworks 2 and 3.
+
+Your assignment should contain the following:
+  1. A single tar.gz file named hw4.tar.gz, which, when extracted, creates
+     directory hw4.
+  2. The hw4 directory can contain sub-directories.
+  3. The hw4 directory should contain the following files:
+     a. README - Please include your name(s) and UTEID(s) here.
+     b. compile.sh - a script to compile your source code.
+     c. run.sh - a script that runs your compiler. This script should read
+        3-address code as input from stdin and write output to stdout. The
+        output is specified by the command line arguments described in
+        section 3.
+The hw4 directory already exists with these files in the tarball you
+downloaded.
+
+Turn in your assignment by running the following commands on a UTCS Linux
+machine.
+   $ # Go the parent directory of the hw4 directory.
+   $ tar -zcvf hw4.tar.gz hw4
+   $ turnin --submit olivo cs380c-hw4 hw4.tar.gz
+   $ turnin --list olivo cs380c-hw4
+Please use turnin to submit your assignment. Only homeworks that are turned
+in using the procedure described above will be accepted.
+
+
+5. Hints
+--------
+0. Start early :)
+1. You may decide to work on your version or to ask the TA 
+   for a "tested" version to build upon. In the latter case,
+   no guarantees are made about the correctness or extensibility
+   of the provided code.
