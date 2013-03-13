@@ -274,4 +274,28 @@ public class CFG implements BaseCFG
 			}
 		}
 	}
+	@Override
+	public int getPrevBlock(int numline) {
+		int function = getCurrentFunction(numline);
+		if(function == -1)
+			return -1;
+		else
+			return getPrevBlock(function, numline);
+	}
+	@Override
+	public int getNextBlock(int numline) {
+		int function = getCurrentFunction(numline);
+		if(function == -1)
+			return -1;
+		else
+			return getNextBlock(function, numline);
+	}
+	@Override
+	public int getCurrentBlock(int numline) {
+		int function = getCurrentFunction(numline);
+		if(function == -1)
+			return -1;
+		else
+			return getCurrentBlock(function, numline);
+	}
 }

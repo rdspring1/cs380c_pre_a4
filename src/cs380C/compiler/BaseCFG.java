@@ -6,10 +6,9 @@ import java.util.SortedSet;
 
 public interface BaseCFG extends Iterable<Integer>
 {
-
-	public int getPrevBlock(int function, int numline);
-	public int getNextBlock(int function, int numline);
-	public int getCurrentBlock(int function, int numline);
+	public int getPrevBlock(int numline);
+	public int getNextBlock(int numline);
+	public int getCurrentBlock(int numline);
 	
 	public int getPrevFunction(int numline);
 	public int getNextFunction(int numline);

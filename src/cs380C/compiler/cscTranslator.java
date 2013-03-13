@@ -15,7 +15,7 @@ public class cscTranslator
 	private static HashMap<String, Integer> gstructSize = new HashMap<String, Integer>();
 	// Global Arrays
 	private static LinkedList<String> garrays = new LinkedList<String>();
-	private static final int LONGSIZE = 8;
+	public static final int LONGSIZE = 8;
 	private static final int FP = 0;
 	private static final int GP = 32768;
 	private static int STRUCTCOUNT = 0;
@@ -439,7 +439,7 @@ public class cscTranslator
 		}
 		return strdec.toString();
 	}
-	private static String cleanArrayName(String arg1) {
+	public static String cleanArrayName(String arg1) {
 		String arrayindex = arg1.substring(arg1.indexOf("[") + 1, arg1.lastIndexOf("]"));
 		if(arrayindex.indexOf("(") == 0 && arrayindex.indexOf(")") == arrayindex.length() - 1)
 		{
@@ -450,7 +450,7 @@ public class cscTranslator
 			return arg1;
 		}
 	}
-	private static boolean isStruct(HashMap<String, TreeMap<Integer, String>> struct, String arg1) {
+	public static boolean isStruct(HashMap<String, TreeMap<Integer, String>> struct, String arg1) {
 		if(arg1.contains("."))
 		{
 			String parent = arg1.substring(0, arg1.lastIndexOf("."));
@@ -467,7 +467,24 @@ public class cscTranslator
 		}
 		return false;
 	}
-	private static String getStructName(String arg1) {
+	public static boolean isStruct(Set<String> struct, String arg1) {
+		if(arg1.contains("."))
+		{
+			String parent = arg1.substring(0, arg1.lastIndexOf("."));
+			if(parent.indexOf("[") == 1 && parent.contains("]")) 
+			{
+				if(!struct.contains(getStructName(parent)))
+					return false;
+			}
+			else if(!struct.contains(parent))
+			{
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+	public static String getStructName(String arg1) {
 		
 		if(!arg1.contains("[") && !arg1.contains("]"))
 		{
@@ -562,12 +579,11 @@ public class cscTranslator
 		
 		return strdec.toString();
 	}
-	private static String evaluateArgs(String arg, TreeMap<Integer, String> locals, TreeMap<Integer, String> params, TreeMap<Float, String> cmds)
+	public static String evaluateArgs(String arg, Map<Integer, String> locals, Map<Integer, String> params, Map<Float, String> cmds)
 	{
 		if(arg.charAt(0) == '(' && arg.charAt(arg.length() - 1) == ')')
 		{	
-			String output = cmds.remove(Float.parseFloat(arg.substring(1, arg.length() - 1)));
-			return output;
+			return cmds.remove(Float.parseFloat(arg.substring(1, arg.length() - 1)));
 		}
 		else if(arg.contains("#"))
 		{

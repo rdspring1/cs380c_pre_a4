@@ -90,7 +90,7 @@ public class compiler_ui {
 				cmdlist = DCE.instance().performOptimization(cmdlist);
 			break;
 			case PRE:
-				// TODO: Partial Redundant Elimination
+				cmdlist = PRE.instance().performOptimization(cmdlist);
 			default:
 				throw new Exception("Unrecognized Optimization");
 		}
