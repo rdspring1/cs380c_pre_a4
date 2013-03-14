@@ -17,6 +17,9 @@ public interface BaseCFG extends Iterable<Integer>
 	public SortedSet<Integer> getNodes(int function);
 	public SortedSet<Integer> getEdges(int node);
 	
+	public SortedSet<Integer> getPred(int block);
+	public SortedSet<Integer> getSucc(int block);
+	
 	public String toString();
 	public Iterator<Integer> iterator();
 }

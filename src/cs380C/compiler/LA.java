@@ -4,7 +4,7 @@ import java.util.*;
 
 public abstract class LA {
 	public static List<String> DEFCMD = Arrays.asList("store", "move");
-	
+	public static List<String> EXPRCMD = Arrays.asList("add", "sub", "mul", "div", "mod", "neg", "cmpeq", "cmple", "cmplt");
 	protected LinkedList<String> cmdlist = new LinkedList<String>();
 	protected CFG cfg;
 	

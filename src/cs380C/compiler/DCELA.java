@@ -35,7 +35,7 @@ public class DCELA extends LA {
 			Integer linenum = Integer.valueOf(numline);
 			String[] cmd = line.split(":")[1].trim().split("\\s");
 			
-			if(DEFCMD.contains(cmd[0]))
+			if(DCELA.DEFCMD.contains(cmd[0]))
 			{
 				if(cmd[1].contains("#"))
 				{
@@ -59,6 +59,7 @@ public class DCELA extends LA {
 					}
 				}
 			}
+			
 			++numline;
 		}
 	}

@@ -8,16 +8,17 @@ public class CFG implements BaseCFG
 	private LinkedList<String> cmdlist = new LinkedList<String>();
 	private SortedSet<Integer> functions = new TreeSet<Integer>();
 	private LinkedHashMap<Integer, SortedSet<Integer>> nodes = new LinkedHashMap<Integer, SortedSet<Integer>>();
-	private HashMap<Integer, SortedSet<Integer>> edges = new HashMap<Integer, SortedSet<Integer>>();
+	private HashMap<Integer, SortedSet<Integer>> succ = new HashMap<Integer, SortedSet<Integer>>();
+	private HashMap<Integer, SortedSet<Integer>> pred = new HashMap<Integer, SortedSet<Integer>>();
 	
 	public CFG(LinkedList<String> input)
 	{
 		cmdlist = input;
 		arrayCmdlist = input.toArray(new String[cmdlist.size()]);
-		edges.put(-1, new TreeSet<Integer>());
+		succ.put(-1, new TreeSet<Integer>());
 		generateCFG();
 		cleanCFG();
-		edges.remove(-1);
+		succ.remove(-1);
 	}
 	public String toString()
 	{	
@@ -32,7 +33,7 @@ public class CFG implements BaseCFG
 			for(Integer node : nodes.get(id))
 			{
 				str.append(node + " ->");
-				for(Integer edge : edges.get(node))
+				for(Integer edge : succ.get(node))
 					str.append(" " + edge);
 				str.append("\n");
 			}
@@ -54,7 +55,7 @@ public class CFG implements BaseCFG
 				functions.add(currentFunction);
 				nodes.put(currentFunction, new TreeSet<Integer>());
 				nodes.get(currentFunction).add(numline);
-				edges.put(numline, new TreeSet<Integer>());
+				succ.put(numline, new TreeSet<Integer>());
 			}
 			else if(cmd[0].equals("br"))
 			{
@@ -62,43 +63,43 @@ public class CFG implements BaseCFG
 				
 				if(nodes.get(currentFunction).contains(numline))
 				{
-					edges.get(getPrevBlock(currentFunction, numline)).add(numline);
+					succ.get(getPrevBlock(currentFunction, numline)).add(numline);
 				}
 				
-				if(edges.get(getPrevBlock(currentFunction, getPrevBlock(currentFunction, numline))).size() == 0)
+				if(succ.get(getPrevBlock(currentFunction, getPrevBlock(currentFunction, numline))).size() == 0)
 				{
-					edges.get(getPrevBlock(currentFunction, getPrevBlock(currentFunction, numline))).add(getPrevBlock(currentFunction, numline));
+					succ.get(getPrevBlock(currentFunction, getPrevBlock(currentFunction, numline))).add(getPrevBlock(currentFunction, numline));
 				}
 				
 				nodes.get(currentFunction).add(numline + 1);
-				edges.put(numline + 1, new TreeSet<Integer>());
+				succ.put(numline + 1, new TreeSet<Integer>());
 				
 				if(!nodes.get(currentFunction).contains(jmpline))
 				{
 					nodes.get(currentFunction).add(jmpline);
 					if(arrayCmdlist[jmpline - 2].split(":")[1].trim().split("\\s")[0].equals("enter"))
 					{
-						edges.put(jmpline, new TreeSet<Integer>(edges.get(jmpline - 1)));
-						edges.put(jmpline - 1, new TreeSet<Integer>());
-						edges.get(jmpline - 1).add(jmpline);
+						succ.put(jmpline, new TreeSet<Integer>(succ.get(jmpline - 1)));
+						succ.put(jmpline - 1, new TreeSet<Integer>());
+						succ.get(jmpline - 1).add(jmpline);
 					}
 					else
 					{
-						edges.put(jmpline, new TreeSet<Integer>());
-						edges.get(getPrevBlock(currentFunction, numline + 1)).add(jmpline);
+						succ.put(jmpline, new TreeSet<Integer>());
+						succ.get(getPrevBlock(currentFunction, numline + 1)).add(jmpline);
 					}
-					edges.get(getPrevBlock(currentFunction, numline + 1)).add(jmpline);
+					succ.get(getPrevBlock(currentFunction, numline + 1)).add(jmpline);
 				}
 				else
 				{						
-					edges.get(getPrevBlock(currentFunction, numline + 1)).add(jmpline);
+					succ.get(getPrevBlock(currentFunction, numline + 1)).add(jmpline);
 				}
 			}
 			else if(cmd[0].equals("call"))
 			{
 				nodes.get(currentFunction).add(numline + 1);
-				edges.put(numline + 1, new TreeSet<Integer>());
-				edges.get(getPrevBlock(currentFunction, numline)).add(numline + 1);
+				succ.put(numline + 1, new TreeSet<Integer>());
+				succ.get(getPrevBlock(currentFunction, numline)).add(numline + 1);
 			}
 			else if(cmd[0].equals("blbc") || cmd[0].equals("blbs"))
 			{
@@ -111,27 +112,27 @@ public class CFG implements BaseCFG
 				else
 					nodes.get(currentFunction).add(startline);
 				
-				if(!edges.containsKey(startline))
-					edges.put(startline, new TreeSet<Integer>());
+				if(!succ.containsKey(startline))
+					succ.put(startline, new TreeSet<Integer>());
 				
-				edges.get(startline).add(endline);
-				edges.get(startline).add(jmpline);
+				succ.get(startline).add(endline);
+				succ.get(startline).add(jmpline);
 				
 				nodes.get(currentFunction).add(endline);
-				if(!edges.containsKey(endline))
-					edges.put(endline, new TreeSet<Integer>());
+				if(!succ.containsKey(endline))
+					succ.put(endline, new TreeSet<Integer>());
 				
 				nodes.get(currentFunction).add(jmpline);
-				if(!edges.containsKey(jmpline))
-					edges.put(jmpline, new TreeSet<Integer>());
+				if(!succ.containsKey(jmpline))
+					succ.put(jmpline, new TreeSet<Integer>());
 				
-				if(edges.get(getPrevBlock(currentFunction, startline)).size() == 0)
-					edges.get(getPrevBlock(currentFunction, startline)).add(startline);
+				if(succ.get(getPrevBlock(currentFunction, startline)).size() == 0)
+					succ.get(getPrevBlock(currentFunction, startline)).add(startline);
 			}
 			else if(cmd[0].equals("ret"))
 			{
-				if(nodes.get(currentFunction).contains(numline) && edges.get(getPrevBlock(currentFunction, numline)).size() == 0)
-					edges.get(getPrevBlock(currentFunction, numline)).add(numline);
+				if(nodes.get(currentFunction).contains(numline) && succ.get(getPrevBlock(currentFunction, numline)).size() == 0)
+					succ.get(getPrevBlock(currentFunction, numline)).add(numline);
 			}
 			++numline;
 		}
@@ -195,7 +196,7 @@ public class CFG implements BaseCFG
 	}
 	public SortedSet<Integer> getEdges(int node)
 	{
-		return edges.get(node);
+		return succ.get(node);
 	}
 	public Iterator<Integer> iterator() {
 		return functions.iterator();
@@ -211,15 +212,15 @@ public class CFG implements BaseCFG
 				endblock = cmdlist.size();
 			
 			nodes.get(function).add(endblock);
-			edges.put(endblock, new TreeSet<Integer>());
+			succ.put(endblock, new TreeSet<Integer>());
 			
 			for(int i = endblock - 1; i > lastblock; --i)
 			{
 				nodes.get(function).add(i);
-				edges.put(i, new TreeSet<Integer>());
-				edges.get(i).add(i + 1);
+				succ.put(i, new TreeSet<Integer>());
+				succ.get(i).add(i + 1);
 			}
-			edges.get(lastblock).add(lastblock + 1);
+			succ.get(lastblock).add(lastblock + 1);
 		}
 	}
 	private int startCondition(int numline) 
@@ -269,8 +270,8 @@ public class CFG implements BaseCFG
 			SortedSet<Integer> nodeSet = nodes.get(func).headSet(nodes.get(func).last());
 			for(int node : nodeSet)
 			{
-				if(edges.get(node).isEmpty())
-					edges.get(node).add(getNextBlock(func, node));
+				if(succ.get(node).isEmpty())
+					succ.get(node).add(getNextBlock(func, node));
 			}
 		}
 	}
@@ -297,5 +298,26 @@ public class CFG implements BaseCFG
 			return -1;
 		else
 			return getCurrentBlock(function, numline);
+	}
+	@Override
+	public SortedSet<Integer> getPred(int block) {
+		if(pred.containsKey(block))
+			return pred.get(block);
+		
+		pred.put(block, generatorPred(block));
+		return pred.get(block);
+	}
+	@Override
+	public SortedSet<Integer> getSucc(int block) {
+		return succ.get(block);
+	}
+	private SortedSet<Integer> generatorPred(int block) {
+		SortedSet<Integer> predset = new TreeSet<Integer>();
+		for(Integer node : succ.keySet())
+		{
+			if(succ.get(node).contains(block))
+				predset.add(node);
+		}
+		return predset;
 	}
 }

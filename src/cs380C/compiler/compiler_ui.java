@@ -91,6 +91,7 @@ public class compiler_ui {
 			break;
 			case PRE:
 				cmdlist = PRE.instance().performOptimization(cmdlist);
+			break;
 			default:
 				throw new Exception("Unrecognized Optimization");
 		}
