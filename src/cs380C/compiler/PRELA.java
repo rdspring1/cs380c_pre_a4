@@ -41,6 +41,11 @@ public class PRELA extends LA {
 		return;
 	}
 	
+	private void generateEarliest() {
+		earliest = setupEdgeSet();
+		
+	}
+
 	private void generateAvail() {
 		Map<Integer, Set<String>> availin = setupAvailIn();
 		availout = setupAvailOut();
@@ -351,5 +356,22 @@ public class PRELA extends LA {
 		{
 			return false;
 		}
+	}
+	
+	private Map<Integer, Map<Integer, Set<String>>> setupEdgeSet() {
+		Map<Integer, Map<Integer, Set<String>>> setup = new TreeMap<Integer, Map<Integer, Set<String>>>();
+		for(int function : cfg)
+		{
+			for(int startNode : cfg.getNodes(function))
+			{
+				Map<Integer, Set<String>> endNode = new HashMap<Integer, Set<String>>();
+				for(int succ : cfg.getSucc(startNode))
+				{
+					endNode.put(succ, new TreeSet<String>());
+				}
+				setup.put(startNode, endNode);
+			}
+		}
+		return setup;
 	}
 }
