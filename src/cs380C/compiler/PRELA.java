@@ -8,6 +8,13 @@ public class PRELA extends LA {
 	private Map<Integer, Set<String>> killexpr;
 	private Map<String, Set<String>> exprs; // Variable / Expression Arguments
 	private Map<Integer, Integer> localvar; // Function / Minimum Offset
+	private Map<Integer, Set<String>> availout;
+	private Map<Integer, Set<String>> antin;
+	private Map<Integer, Map<Integer, Set<String>>> earliest;
+	private Map<Integer, Set<String>> laterin;
+	private Map<Integer, Map<Integer, Set<String>>> later;
+	private Map<Integer, Map<Integer, Set<String>>> insert;
+	private Map<Integer, Set<String>> delete;
 	
 	public PRELA(LinkedList<String> input, CFG cfg) {
 		super(input, cfg);
@@ -20,16 +27,195 @@ public class PRELA extends LA {
 		killexpr = new TreeMap<Integer, Set<String>>();
 		exprs = new TreeMap<String, Set<String>>();
 		localvar = new HashMap<Integer, Integer>();
-		
 		generateEXPR();
 	}
 
 	@Override
 	public void liveAnalysis() {
-		// TODO Auto-generated method stub
+		generateAvail();
+		generateAnt();
+		generateEarliest();
+		generateLater();
+		generateInsert();
+		generateDelete();
 		return;
 	}
 	
+	private void generateAvail() {
+		Map<Integer, Set<String>> availin = setupAvailIn();
+		availout = setupAvailOut();
+		boolean update = true;
+		
+		while(update)
+		{
+			update = false;
+			for(int function : cfg)
+			{
+				for(int block : cfg.getNodes(function))
+				{
+					// AVAILOUT(block)
+					Set<String> availoutBefore = availout.remove(block);
+					Set<String> availoutAfter = generateAvailOut(availin.get(block), deexpr.get(block), killexpr.get(block));
+					if(!availoutBefore.equals(availoutAfter))
+						update = true;
+					availout.put(block, availoutAfter);
+					
+					// AVAILIN(block)
+					Set<String> availinBefore = availout.remove(block);
+					Set<String> availinAfter = generateAvailIn(function, block, cfg.getPred(block), availout);
+					if(!availinBefore.equals(availinAfter))
+						update = true;
+					availin.put(block, availoutAfter);
+				}
+			}
+		}
+	}
+
+	private Set<String> generateAvailIn(int function, int block, SortedSet<Integer> pred, Map<Integer, Set<String>> availout) {
+		if(function == block)
+		{
+			return new TreeSet<String>();
+		}
+		else
+		{
+			Set<String> availin = new TreeSet<String>(availout.get(pred.first()));
+			
+			for(Integer predId : pred)
+			{
+				availin.retainAll(availout.get(predId));
+			}
+			return availin;
+		}
+	}
+
+	private Set<String> generateAvailOut(Set<String> availin, Set<String> deexpr, Set<String> killexpr) {
+		Set<String> lhs = new TreeSet<String>(availin);
+		lhs.retainAll(killexpr);
+		Set<String> rhs = new TreeSet<String>(deexpr);
+		rhs.addAll(lhs);
+		return rhs;
+	}
+
+	private Map<Integer, Set<String>> setupAvailIn() {
+		Map<Integer, Set<String>> setup = new TreeMap<Integer, Set<String>>();
+		for(int function : cfg)
+		{
+			for(int block : cfg.getNodes(function))
+			{
+				if(function == block)
+				{
+					// N0 = empty set
+					setup.put(block, new TreeSet<String>());
+				}
+				else
+				{
+					// N != N0 = set of all expressions
+					setup.put(block, new TreeSet<String>(exprs.keySet()));
+				}
+			}
+		}
+		return setup;
+	}
+	
+	private Map<Integer, Set<String>> setupAvailOut() {
+		Map<Integer, Set<String>> setup = new TreeMap<Integer, Set<String>>();
+		for(int function : cfg)
+		{
+			for(int block : cfg.getNodes(function))
+			{
+					setup.put(block, new TreeSet<String>());
+			}
+		}
+		return setup;
+	}
+
+	private void generateAnt() {
+		Map<Integer, Set<String>> antout = setupAntOut();
+		antin = setupAntIn();
+		boolean update = true;
+		
+		while(update)
+		{
+			update = false;
+			for(int function : cfg)
+			{
+				for(int block : cfg.getNodes(function))
+				{
+					// AVAILIN(block)
+					Set<String> antinBefore = antin.remove(block);
+					Set<String> antinAfter = generateAntIn(antin.get(block), ueexpr.get(block), killexpr.get(block));
+					if(!antinBefore.equals(antinAfter))
+						update = true;
+					antin.put(block, antinAfter);
+					
+					// antOUT(block)
+					Set<String> antoutBefore = antout.remove(block);
+					Set<String> antoutAfter = generateAntOut(cfg.getSucc(block), antout);
+					if(!antoutBefore.equals(antoutAfter))
+						update = true;
+					antout.put(block, antoutAfter);
+				}
+			}
+		}
+	}
+
+	private Set<String> generateAntOut(SortedSet<Integer> succ, Map<Integer, Set<String>> antin) {
+		if(succ.isEmpty())
+		{
+			return new TreeSet<String>();
+		}
+		else
+		{
+			Set<String> antout = new TreeSet<String>(availout.get(succ.first()));
+			for(Integer succId : succ)
+			{
+				antout.retainAll(availout.get(succId));
+			}
+			return antout;
+		}
+	}
+
+	private Set<String> generateAntIn(Set<String> availin, Set<String> ueexpr, Set<String> killexpr) {
+		Set<String> lhs = new TreeSet<String>(availin);
+		lhs.retainAll(killexpr);
+		Set<String> rhs = new TreeSet<String>(ueexpr);
+		rhs.addAll(lhs);
+		return rhs;
+	}
+
+	private Map<Integer, Set<String>> setupAntIn() {
+		Map<Integer, Set<String>> setup = new TreeMap<Integer, Set<String>>();
+		for(int function : cfg)
+		{
+			for(int block : cfg.getNodes(function))
+			{
+					setup.put(block, new TreeSet<String>());
+			}
+		}
+		return setup;
+	}
+
+	private Map<Integer, Set<String>> setupAntOut() {
+		Map<Integer, Set<String>> setup = new TreeMap<Integer, Set<String>>();
+		for(int function : cfg)
+		{
+			for(int block : cfg.getNodes(function))
+			{
+				if(cfg.getSucc(block).isEmpty())
+				{
+					// NEXIT = empty set
+					setup.put(block, new TreeSet<String>());
+				}
+				else
+				{
+					// N != N0 = set of all expressions
+					setup.put(block, new TreeSet<String>(exprs.keySet()));
+				}
+			}
+		}
+		return setup;
+	}
+
 	private void generateKILLEXPR(Map<Integer, Map<String, Integer>> modify) {
 		assert(!deexpr.isEmpty());
 		assert(!ueexpr.isEmpty());
