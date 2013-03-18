@@ -8,8 +8,10 @@ public class PRELA extends LA {
 	private Map<Integer, Set<String>> killexpr;
 	private Map<String, Set<String>> exprs; // Variable / Expression Arguments
 	private Map<Integer, Integer> localvar; // Function / Minimum Offset
+	private Map<Integer, Set<String>> availin;
 	private Map<Integer, Set<String>> availout;
 	private Map<Integer, Set<String>> antin;
+	private Map<Integer, Set<String>> antout;
 	private Map<Integer, Map<Integer, Set<String>>> earliest;
 	private Map<Integer, Set<String>> laterin;
 	private Map<Integer, Map<Integer, Set<String>>> later;
@@ -41,13 +43,132 @@ public class PRELA extends LA {
 		return;
 	}
 	
+	private void generateDelete() {
+		delete = new TreeMap<Integer, Set<String>>();
+		
+		for(int function : cfg)
+		{
+			for(int block : cfg.getNodes(function))
+			{
+				if(function != block)
+				{
+					Set<String> newset = new TreeSet<String>(ueexpr.get(block));
+					newset.retainAll(laterin.get(block));
+					delete.put(block, newset);
+				}
+			}
+		}
+	}
+
+	private void generateInsert() {
+		insert = setupEdgeSet();
+		
+		for(Integer i : insert.keySet())
+		{
+			Map<Integer, Set<String>> jset = insert.get(i);
+			for(Integer j : jset.keySet())
+			{
+				Set<String> newset = new TreeSet<String>(laterin.get(j));
+				newset.retainAll(later.get(i).get(j));
+				jset.put(j, newset);
+			}
+		}
+	}
+
+	private void generateLater() {
+		List<Integer> endset = setupEndSet();
+		laterin = setupNodeSet();
+		later = setupEdgeSet();
+		boolean update = true;
+		
+		while(update)
+		{
+			update = false;
+			for(Integer i : later.keySet())
+			{				
+				// LATER
+				Map<Integer, Set<String>> jset = earliest.get(i);
+				for(Integer j : jset.keySet())
+				{
+					Set<String> currentset = jset.remove(j);
+					Set<String> newset = new TreeSet<String>(ueexpr.get(i));
+					newset.retainAll(laterin.get(i));
+					newset.addAll(earliest.get(i).get(j));
+					jset.put(j, newset);
+					
+					if(!newset.equals(currentset))
+						update = true;
+				}
+			}
+			
+			// LATERIN
+			for(Integer j : endset)
+			{
+				if(!cfg.containsFunction(j))
+				{
+					Set<Integer> pred = cfg.getPred(j);
+					if(!pred.isEmpty())
+					{
+						Set<String> currentset = laterin.remove(j);
+						Set<String> newset = new TreeSet<String>(later.get(pred.iterator().next()).get(j));
+						for(Integer i : pred)
+						{
+							newset.retainAll(later.get(i).get(j));
+						}
+						laterin.put(j, newset);
+						if(!currentset.equals(newset))
+							update = true;
+					}
+				}
+			}
+		}
+	}
+
 	private void generateEarliest() {
 		earliest = setupEdgeSet();
+		boolean update = true;
 		
+		while(update)
+		{
+			update = false;
+			for(Integer i : earliest.keySet())
+			{
+				if(cfg.containsFunction(i))
+				{
+					Map<Integer, Set<String>> jset = earliest.get(i);
+					for(Integer j : jset.keySet())
+					{
+						Set<String> currentset = jset.remove(j);
+						Set<String> newset = new TreeSet<String>(killexpr.get(i));
+						newset.retainAll(antout.get(i));
+						newset.addAll(availout.get(i));
+						newset.addAll(antin.get(j));
+						jset.put(j, newset);
+						
+						if(!newset.equals(currentset))
+							update = true;
+					}
+				}
+				else
+				{
+					Map<Integer, Set<String>> jset = earliest.get(i);
+					for(Integer j : jset.keySet())
+					{
+						Set<String> currentset = jset.remove(j);
+						Set<String> newset = new TreeSet<String>(antin.get(j));
+						newset.retainAll(availout.get(i));
+						jset.put(j, newset);
+						
+						if(!newset.equals(currentset))
+							update = true;
+					}
+				}
+			}
+		}
 	}
 
 	private void generateAvail() {
-		Map<Integer, Set<String>> availin = setupAvailIn();
+		availin = setupAvailIn();
 		availout = setupAvailOut();
 		boolean update = true;
 		
@@ -135,7 +256,7 @@ public class PRELA extends LA {
 	}
 
 	private void generateAnt() {
-		Map<Integer, Set<String>> antout = setupAntOut();
+		antout = setupAntOut();
 		antin = setupAntIn();
 		boolean update = true;
 		
@@ -374,4 +495,30 @@ public class PRELA extends LA {
 		}
 		return setup;
 	}
+	
+	private Map<Integer, Set<String>> setupNodeSet() {
+		Map<Integer, Set<String>> setup = new TreeMap<Integer, Set<String>>();
+		for(int function : cfg)
+		{
+			for(int block : cfg.getNodes(function))
+			{
+				setup.put(block, new TreeSet<String>());
+			}
+		}
+		return setup;
+	}
+	
+
+	private List<Integer> setupEndSet() {
+		List<Integer> setup = new LinkedList<Integer>();
+		for(int function : cfg)
+		{
+			for(int block : cfg.getNodes(function))
+			{
+				setup.addAll(cfg.getSucc(block));
+			}
+		}
+		return setup;
+	}
+
 }

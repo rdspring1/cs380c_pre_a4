@@ -22,4 +22,5 @@ public interface BaseCFG extends Iterable<Integer>
 	
 	public String toString();
 	public Iterator<Integer> iterator();
+	public boolean containsFunction(int id);
 }

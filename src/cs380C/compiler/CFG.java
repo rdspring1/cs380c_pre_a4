@@ -320,4 +320,9 @@ public class CFG implements BaseCFG
 		}
 		return predset;
 	}
+	@Override
+	public boolean containsFunction(int id)
+	{
+		return functions.contains(id);
+	}
 }
