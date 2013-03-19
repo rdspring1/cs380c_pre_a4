@@ -325,4 +325,34 @@ public class CFG implements BaseCFG
 	{
 		return functions.contains(id);
 	}
+	@Override
+	public int getEndBlock(int numline) {
+		int line = getNextBlock(numline);
+		
+		if(line == -1)
+			return cmdlist.size() - 1;
+		
+		String cmd = cmdlist.get(line).split(":")[1].trim().split("\\s")[0];
+		if(LA.BRCMD.contains(cmd))
+		{
+			return line - 1;
+		}
+		else if(LA.JMPCMD.contains(cmd))
+		{
+			return line - 2;
+		}
+		else if(LA.FUNCMD.contains(cmd))
+		{
+			ListIterator<String> iter = cmdlist.listIterator(--line);
+			while(iter.hasPrevious() && iter.previous().split(":")[1].trim().split("\\s")[0].equals("param"))
+			{
+				--line;
+			}
+			return line;
+		}
+		else	
+		{
+			return line;
+		}
+	}
 }

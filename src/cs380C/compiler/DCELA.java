@@ -16,12 +16,14 @@ public class DCELA extends LA {
 	protected void setupAnalysis() {
 		generateDefUse();
 	}
-	public void liveAnalysis()
+	protected void liveAnalysis()
 	{		
 		while(update());	
 	}
 	public LinkedHashMap<Integer, Set<String>> getLiveVariables()
 	{
+		if(out == null)
+			liveAnalysis();
 		return out;
 	}
 	private void generateDefUse() {

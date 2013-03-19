@@ -5,6 +5,9 @@ import java.util.*;
 public abstract class LA {
 	public static List<String> DEFCMD = Arrays.asList("store", "move");
 	public static List<String> EXPRCMD = Arrays.asList("add", "sub", "mul", "div", "mod", "neg", "cmpeq", "cmple", "cmplt");
+	public static List<String> BRCMD = Arrays.asList("br");
+	public static List<String> JMPCMD = Arrays.asList("blbs", "blbc");
+	public static List<String> FUNCMD = Arrays.asList("call");
 	protected LinkedList<String> cmdlist = new LinkedList<String>();
 	protected CFG cfg;
 	
@@ -37,7 +40,7 @@ public abstract class LA {
 	/**
 	 * @return Perform Live Analysis
 	 */
-	public abstract void liveAnalysis();
+	protected abstract void liveAnalysis();
 	
 	protected abstract void setupAnalysis();
 }

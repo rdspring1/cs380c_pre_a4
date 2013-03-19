@@ -17,6 +17,7 @@ public class DCE extends Optimization {
 	@Override
 	public LinkedList<String> performOptimization(LinkedList<String> input) {
 		this.cmdlist = input;
+		this.cmdarray = new ArrayList<String>(input);
 		while(update());
 		removeUnusedReferences();
 		return cmdlist;
@@ -27,7 +28,6 @@ public class DCE extends Optimization {
 		CFG graph = new CFG(cmdlist);
 		graph.updateCFG();
 		DCELA dcela = new DCELA(cmdlist, graph);
-		dcela.liveAnalysis();
 		HashMap<Integer, Set<String>> analysis = dcela.getLiveVariables();
 		
 		ListIterator<String> iter = cmdlist.listIterator();
