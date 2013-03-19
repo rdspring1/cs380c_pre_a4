@@ -197,12 +197,7 @@ public class PRELA extends LA {
 						update = true;
 					
 					// AVAILIN(block)
-					Set<Integer> availinBefore = availin.get(block);
-					Set<Integer> availinAfter = generateAvailIn(function, block, cfg.getPred(block), availout);
-					availin.put(block, availoutAfter);
-					
-					if(!availinBefore.equals(availinAfter))
-						update = true;
+					availin.put(block, generateAvailIn(function, block, cfg.getPred(block), availout));				
 				}
 			}
 		}

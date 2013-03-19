@@ -1,0 +1,8 @@
+
+$Id: README 809 2007-08-31 23:38:56Z suriya $
+
+A compiler for a subset of C, by Martin Burtscher
+<burtscher@ices.utexas.edu>. Some modifications made for the CS380C Fall
+2007 course at UT, by Suriya Subramanian <suriya@cs.utexas.edu>.
+
+Direct questions to Suriya.

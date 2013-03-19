@@ -47,9 +47,12 @@ public class PRE extends Optimization {
 			
 			for(int n = 1; n < cmd.length; ++n)
 			{
-				Integer var = Integer.valueOf(cmd[1].substring(1, cmd[1].length() - 1));
-				if(independentVar.containsKey(var))
-					cmd[1] = independentVar.get(var);
+				if(cmd[n].contains("(") && cmd[n].contains(")"))
+				{
+					Integer var = Integer.valueOf(cmd[n].substring(1, cmd[n].length() - 1));
+					if(independentVar.containsKey(var))
+						cmd[n] = independentVar.get(var);
+				}
 			}
 			
 			StringBuilder sb = new StringBuilder();

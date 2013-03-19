@@ -1,5 +1,4 @@
-
-                Homework 4: Partial Redundancy Elimination
+Homework 4: Partial Redundancy Elimination
 
 Course:     CS 380C: Advanced Compiler Techniques (Spring 2013)
 Instructor: Keshav Pingali
